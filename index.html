@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="favicon" href="favicon.ico" />
+    <!-- Primary Meta Tags -->
+    <title>Get your certificate of Google Cloud Studyjam 2023</title>
+    <meta
+      name="title"
+      content="Get your certificate of Google Cloud Study Jam"
+    />
+   
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <img src="logo-gcjs.svg" alt="Logo" />
+
+  
+      <h3>
+        <a
+          href="http://Studyjam.gdscpescoe.tech/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Google Cloud Study Jam 2023 - GDSC PESCOE</a
+        >
+      </h3>
+    </header>
+    <main>
+      <label for="name">Your Registerd Email</label>
+
+      <input
+        required
+        type="email"
+        name="email"
+        autocomplete="name"
+        placeholder="Enter Your Email"
+        id="email"
+      />
+      <button onclick="search()">Click Here to Download Certificate</button>
+    </main>
+    <script>
+
+
+function search() {
+  const email = document.getElementById("email").value;
+  const jsonFile = "data.json";
+
+  fetch(jsonFile)
+    .then((response) => response.json())
+    .then((data) => {
+      let foundData = null;
+
+      for (let i = 0; i < data.length; i++) {
+        if (data[i]["Student Email"] === email ) {
+          foundData = data[i];
+          break;
+        }
+      }
+
+      if (foundData) {
+        validateData(foundData["Student Name"], foundData["Google Cloud Skills Boost Profile URL"]);
+      } else {
+        handleNotFound();
+      }
+    })
+    .catch((error) => {
+      console.error("Error loading data:", error);
+    });
+}
+
+function handleNotFound() {
+  alert("Email not found!");
+}
+
+
+      function validateData(name,url) {
+        // const capitalize = (str, lower = false) =>
+        //   (lower ? str.toLowerCase() : str).replace(
+        //     /(?:^|\s|["'([{])+\S/g,
+        //     (match) => match.toUpperCase()
+        //   );
+        // const val = capitalize(name);
+
+        //check if the text is empty or not
+        if (name.trim() !== "") {
+          generatePDF(name,url);
+        } else {
+          console.log("somthing went wrong");
+        }
+      }
+    </script>
+    <script src="https://unpkg.com/pdf-lib@1.4.0"></script>
+    <script src="./FileSaver.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@0.0.4"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
