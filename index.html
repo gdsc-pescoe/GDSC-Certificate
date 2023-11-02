@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,15 +11,16 @@
       name="title"
       content="Get your certificate of Google Cloud Study Jam"
     />
-   
+
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
   </head>
 
   <body>
+    <div class="overlay" id="overlay"></div>
+
     <header>
       <img src="logo-gcjs.svg" alt="Logo" />
 
-  
       <h3>
         <a
           href="http://Studyjam.gdscpescoe.tech/"
@@ -30,8 +30,14 @@
         >
       </h3>
     </header>
+
+    <div class="loader-container">
+      <!-- Container for centering the loader -->
+      <div id="loader" class="loader"></div>
+      <!-- Loader inside the container -->
+    </div>
     <main>
-      <label for="name">Your Registerd Email</label>
+      <br />
 
       <input
         required
@@ -43,55 +49,81 @@
       />
       <button onclick="search()">Click Here to Download Certificate</button>
     </main>
+
+    <footer>
+      <p style="color: black">Made with 💜 by GDSC PESCOE</p>
+    </footer>
+
     <script>
+      function search() {
+        const email = document.getElementById("email").value;
+        const jsonFile = "data.json";
 
+        fetch(jsonFile)
+          .then((response) => response.json())
+          .then((data) => {
+            let foundData = null;
 
-function search() {
-  const email = document.getElementById("email").value;
-  const jsonFile = "data.json";
+            for (let i = 0; i < data.length; i++) {
+              if (
+                data[i]["Student Email"].toLowerCase() === email.toLowerCase()
+              ) {
+                foundData = data[i];
+                break;
+              }
+            }
 
-  fetch(jsonFile)
-    .then((response) => response.json())
-    .then((data) => {
-      let foundData = null;
+            if (foundData) {
+              if (
+                foundData["Total Completions of both Pathways"] === "Yes" &&
+                foundData["Redemption Status"] === "Yes"
+              ) {
+                validateData(
+                  foundData["Student Name"],
+                  foundData["Google Cloud Skills Boost Profile URL"]
+                );
+              } else {
+                alert("You have not compleated the Course");
+              }
+            } else {
+              handleNotFound();
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading data:", error);
 
-      for (let i = 0; i < data.length; i++) {
-        if (data[i]["Student Email"] === email ) {
-          foundData = data[i];
-          break;
-        }
+            alert("Please use your registered email");
+          });
       }
 
-      if (foundData) {
-        validateData(foundData["Student Name"], foundData["Google Cloud Skills Boost Profile URL"]);
-      } else {
-        handleNotFound();
+      function handleNotFound() {
+        alert("Please use your registered email");
       }
-    })
-    .catch((error) => {
-      console.error("Error loading data:", error);
-    });
-}
+      async function validateData(name, url) {
+        const capitalize = (str, lower = false) =>
+          (lower ? str.toLowerCase() : str).replace(
+            /(?:^|\s|["'([{])+\S/g,
+            (match) => match.toUpperCase()
+          );
+        const val = capitalize(name);
+        document.getElementById("overlay").style.display = "block";
 
-function handleNotFound() {
-  alert("Email not found!");
-}
+        document.getElementById("loader").style.display = "block";
 
+        await generatePDF(val, url)
+          .then(() => {
+            // Hide the loader when PDF generation is complete
+            document.getElementById("overlay").style.display = "none";
 
-      function validateData(name,url) {
-        // const capitalize = (str, lower = false) =>
-        //   (lower ? str.toLowerCase() : str).replace(
-        //     /(?:^|\s|["'([{])+\S/g,
-        //     (match) => match.toUpperCase()
-        //   );
-        // const val = capitalize(name);
-
-        //check if the text is empty or not
-        if (name.trim() !== "") {
-          generatePDF(name,url);
-        } else {
-          console.log("somthing went wrong");
-        }
+            document.getElementById("loader").style.display = "none";
+          })
+          .catch((error) => {
+            console.error("Error generating PDF:", error);
+            alert("Failed to generate PDF.");
+            document.getElementById("overlay").style.display = "none";
+            // Hide the loader in case of an error
+            document.getElementById("loader").style.display = "none";
+          });
       }
     </script>
     <script src="https://unpkg.com/pdf-lib@1.4.0"></script>
